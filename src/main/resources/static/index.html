@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#153a31">
+  <title>Tee Times | Fairway Club</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18372f;
+      --muted: #687a72;
+      --green: #1f5a45;
+      --green-dark: #153a31;
+      --lime: #d7efad;
+      --paper: #f5f7f2;
+      --line: #e4eae3;
+      --white: #fff;
+      --red: #a33d32;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { height: 74px; padding: 0 clamp(20px, 6vw, 88px); display: flex; align-items: center; justify-content: space-between; background: var(--green-dark); color: var(--white); }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 750; letter-spacing: .01em; }
+    .brand-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: var(--lime); color: var(--green-dark); font-size: 19px; }
+    .top-label { color: #c1d2c8; font-size: 13px; }
+    .page { max-width: 1280px; margin: 0 auto; padding: 46px 24px 72px; }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { margin: 8px 0 8px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(34px, 4vw, 48px); font-weight: 500; letter-spacing: -.04em; }
+    .intro p { margin: 0; color: var(--muted); }
+    .primary { border: 0; border-radius: 8px; background: var(--green); color: var(--white); padding: 12px 18px; font-weight: 700; transition: background .15s, transform .15s; }
+    .primary:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .stat { padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .stat strong { display: block; margin-top: 5px; font-family: Georgia, "Times New Roman", serif; font-size: 28px; font-weight: 500; }
+    .notice { display: none; margin-bottom: 16px; padding: 12px 15px; border-radius: 8px; background: #e7f2e9; color: var(--green-dark); }
+    .notice.error { display: block; background: #f8e9e6; color: #812d24; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin: 24px 0 12px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter { border: 1px solid var(--line); border-radius: 999px; padding: 8px 13px; background: var(--white); color: var(--muted); font-size: 13px; font-weight: 650; }
+    .filter.active { border-color: var(--green); background: var(--green); color: var(--white); }
+    .search { width: min(100%, 280px); padding: 10px 13px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); outline: none; }
+    .search:focus, input:focus { border-color: var(--green); box-shadow: 0 0 0 3px #1f5a4518; outline: none; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 13px 16px; background: #f8faf7; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 14px 16px; border-top: 1px solid var(--line); font-size: 14px; white-space: nowrap; }
+    tbody tr:hover { background: #fbfcfa; }
+    .time { font-weight: 750; }
+    .capacity { color: var(--muted); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 9px; background: #eaf4e9; color: #286044; font-size: 12px; font-weight: 700; }
+    .badge::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+    .badge.full { background: #f3ece4; color: #8a5c2e; }
+    .actions { display: flex; gap: 7px; }
+    .small-button { border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; background: var(--white); color: var(--ink); font-size: 12px; font-weight: 700; }
+    .small-button:hover { border-color: #a9b9ad; background: #f8faf7; }
+    .small-button.book { border-color: var(--green); background: var(--green); color: var(--white); }
+    .small-button.book:hover { background: var(--green-dark); }
+    .small-button.delete { color: var(--red); }
+    .empty, .loading { padding: 44px 16px; color: var(--muted); text-align: center; }
+    dialog { width: min(100% - 32px, 460px); padding: 0; border: 0; border-radius: 14px; box-shadow: 0 24px 80px #10281e44; color: var(--ink); }
+    dialog::backdrop { background: #10281e88; backdrop-filter: blur(2px); }
+    .dialog-head { display: flex; justify-content: space-between; align-items: start; padding: 23px 24px 16px; }
+    .dialog-head h2 { margin: 0 0 5px; font-family: Georgia, "Times New Roman", serif; font-size: 27px; font-weight: 500; }
+    .dialog-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .close { border: 0; background: transparent; color: var(--muted); font-size: 24px; line-height: 1; }
+    .form-body { display: grid; gap: 14px; padding: 4px 24px 24px; }
+    .form-body label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; }
+    .form-body input { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-actions { display: flex; justify-content: end; gap: 9px; padding-top: 4px; }
+    .secondary { border: 1px solid var(--line); border-radius: 8px; padding: 11px 16px; background: var(--white); color: var(--ink); font-weight: 700; }
+    @media (max-width: 680px) {
+      .top-label { display: none; }
+      .page { padding: 32px 15px 50px; }
+      .intro { align-items: start; flex-direction: column; }
+      .stats { gap: 8px; }
+      .stat { padding: 13px; }
+      .stat strong { font-size: 23px; }
+      th, td { padding-right: 12px; padding-left: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">♧</span> Fairway Club</div>
+    <div class="top-label">TEE TIME MANAGEMENT</div>
+  </header>
+  <main class="page">
+    <section class="intro">
+      <div>
+        <div class="eyebrow">The course at a glance</div>
+        <h1>Tee times</h1>
+        <p id="date-range">Manage your schedule, availability, and reservations.</p>
+      </div>
+      <button class="primary" id="add-tee-time" type="button">＋ Add tee time</button>
+    </section>
+
+    <div class="stats" aria-label="Tee time summary">
+      <div class="stat"><span>Tee times in next 7 days</span><strong id="total-count">—</strong></div>
+      <div class="stat"><span>Available</span><strong id="available-count">—</strong></div>
+      <div class="stat"><span>Fully booked</span><strong id="full-count">—</strong></div>
+    </div>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+    <section aria-label="Tee time list">
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="Filter tee times">
+          <button class="filter active" type="button" data-filter="all">All tee times</button>
+          <button class="filter" type="button" data-filter="available">Available</button>
+          <button class="filter" type="button" data-filter="full">Fully booked</button>
+        </div>
+        <input class="search" id="search" type="search" placeholder="Search date, time, or ID" aria-label="Search tee times">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Date</th><th>Time</th><th>Availability</th><th>Capacity</th><th>Actions</th></tr></thead>
+          <tbody id="tee-times"><tr><td class="loading" colspan="6">Loading tee times…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="tee-time-dialog">
+    <form id="tee-time-form">
+      <div class="dialog-head">
+        <div><h2 id="tee-time-title">Add tee time</h2><p>Changes are saved to the local reservation data.</p></div>
+        <button class="close" type="button" data-close="tee-time-dialog" aria-label="Close">×</button>
+      </div>
+      <div class="form-body">
+        <div class="form-row">
+          <label for="tee-date">Date<input id="tee-date" type="date" required></label>
+          <label for="time-slot">Time<input id="time-slot" type="time" required></label>
+        </div>
+        <div class="form-row">
+          <label for="capacity">Capacity<input id="capacity" type="number" min="1" step="1" value="4" required></label>
+          <label for="booked-count">Booked count<input id="booked-count" type="number" min="0" step="1" value="0" required></label>
+        </div>
+        <div class="form-actions">
+          <button class="secondary" type="button" data-close="tee-time-dialog">Cancel</button>
+          <button class="primary" id="save-tee-time" type="submit">Save tee time</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="booking-dialog">
+    <form id="booking-form">
+      <div class="dialog-head">
+        <div><h2>Book this tee time</h2><p id="booking-description"></p></div>
+        <button class="close" type="button" data-close="booking-dialog" aria-label="Close">×</button>
+      </div>
+      <div class="form-body">
+        <label for="member-name">Member name<input id="member-name" name="memberName" maxlength="100" autocomplete="name" required></label>
+        <label for="member-email">Email address<input id="member-email" name="email" type="email" autocomplete="email" required></label>
+        <div class="form-actions">
+          <button class="secondary" type="button" data-close="booking-dialog">Cancel</button>
+          <button class="primary" type="submit">Confirm booking</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const apiUrl = "/api/reservations";
+    const rows = document.getElementById("tee-times");
+    const notice = document.getElementById("notice");
+    const teeTimeDialog = document.getElementById("tee-time-dialog");
+    const bookingDialog = document.getElementById("booking-dialog");
+    const teeTimeForm = document.getElementById("tee-time-form");
+    let teeTimes = [];
+    let activeFilter = "all";
+    let editingId = null;
+    let bookingId = null;
+
+    async function request(url, options) {
+      const response = await fetch(url, options);
+      const text = await response.text();
+      let body = text;
+      try { body = text ? JSON.parse(text) : null; } catch { /* Plain-text API responses are valid. */ }
+      if (!response.ok) {
+        const detail = typeof body === "string" ? body : body && Object.values(body).join(" ");
+        throw new Error(detail || `Request failed (${response.status}).`);
+      }
+      return body;
+    }
+
+    function showNotice(message, isError = false) {
+      notice.textContent = message;
+      notice.classList.toggle("error", isError);
+      notice.style.display = "block";
+      window.clearTimeout(showNotice.timeout);
+      if (!isError) showNotice.timeout = window.setTimeout(() => { notice.style.display = "none"; }, 4500);
+    }
+
+    function formatTimeForInput(value) {
+      const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(value);
+      if (!match) return "";
+      let hour = Number(match[1]) % 12;
+      if (match[3].toUpperCase() === "PM") hour += 12;
+      return `${String(hour).padStart(2, "0")}:${match[2]}`;
+    }
+
+    function formatInputTime(value) {
+      const [hourText, minute] = value.split(":");
+      const hour = Number(hourText);
+      return `${String(hour % 12 || 12).padStart(2, "0")}:${minute} ${hour < 12 ? "AM" : "PM"}`;
+    }
+
+    function formatDate(value) {
+      const [year, month, day] = value.split("-").map(Number);
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      }).format(new Date(year, month - 1, day));
+    }
+
+    function timeSortKey(value) {
+      const inputTime = formatTimeForInput(value);
+      return inputTime || value;
+    }
+
+    function todayInputValue() {
+      const today = new Date();
+      return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    }
+
+    function addDaysToDate(value, days) {
+      const [year, month, day] = value.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+      date.setDate(date.getDate() + days);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    async function loadTeeTimes() {
+      rows.innerHTML = '<tr><td class="loading" colspan="6">Loading tee times…</td></tr>';
+      const from = todayInputValue();
+      const to = addDaysToDate(from, 6);
+      document.getElementById("date-range").textContent = `Showing tee times from ${formatDate(from)} through ${formatDate(to)}.`;
+      try {
+        const query = new URLSearchParams({ from, to });
+        teeTimes = await request(`${apiUrl}?${query}`);
+        render();
+      } catch (error) {
+        rows.innerHTML = '<tr><td class="empty" colspan="6">Could not load tee times. Check that the application is running.</td></tr>';
+        showNotice(error.message, true);
+      }
+    }
+
+    function render() {
+      const available = teeTimes.filter(time => time.bookedCount < time.capacity).length;
+      document.getElementById("total-count").textContent = teeTimes.length;
+      document.getElementById("available-count").textContent = available;
+      document.getElementById("full-count").textContent = teeTimes.length - available;
+
+      const query = document.getElementById("search").value.trim().toLowerCase();
+      const visible = teeTimes
+        .filter(time => activeFilter === "all" || (activeFilter === "available" ? time.bookedCount < time.capacity : time.bookedCount >= time.capacity))
+        .filter(time => String(time.id).includes(query) || time.date.includes(query) ||
+          formatDate(time.date).toLowerCase().includes(query) || time.timeSlot.toLowerCase().includes(query))
+        .sort((a, b) => a.date.localeCompare(b.date) ||
+          timeSortKey(a.timeSlot).localeCompare(timeSortKey(b.timeSlot)) || a.id - b.id);
+
+      if (visible.length === 0) {
+        rows.innerHTML = '<tr><td class="empty" colspan="6">No tee times match your search.</td></tr>';
+        return;
+      }
+
+      rows.innerHTML = visible.map(time => {
+        const isAvailable = time.bookedCount < time.capacity;
+        const status = isAvailable ? `${time.capacity - time.bookedCount} spots left` : "Fully booked";
+        return `<tr>
+          <td>#${time.id}</td>
+          <td>${escapeHtml(formatDate(time.date))}</td>
+          <td class="time">${escapeHtml(time.timeSlot)}</td>
+          <td><span class="badge${isAvailable ? "" : " full"}">${status}</span></td>
+          <td class="capacity">${time.bookedCount} / ${time.capacity}</td>
+          <td><div class="actions">
+            ${isAvailable ? `<button class="small-button book" type="button" data-action="book" data-id="${time.id}">Book</button>` : ""}
+            ${time.bookedCount > 0 ? `<button class="small-button" type="button" data-action="cancel" data-id="${time.id}">Cancel</button>` : ""}
+            <button class="small-button" type="button" data-action="edit" data-id="${time.id}">Edit</button>
+            <button class="small-button delete" type="button" data-action="delete" data-id="${time.id}">Delete</button>
+          </div></td>
+        </tr>`;
+      }).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[character]);
+    }
+
+    function openEditor(time = null) {
+      editingId = time ? time.id : null;
+      document.getElementById("tee-time-title").textContent = time ? `Edit tee time #${time.id}` : "Add tee time";
+      document.getElementById("tee-date").value = time ? time.date : todayInputValue();
+      document.getElementById("time-slot").value = time ? formatTimeForInput(time.timeSlot) : "";
+      document.getElementById("capacity").value = time ? time.capacity : 4;
+      document.getElementById("booked-count").value = time ? time.bookedCount : 0;
+      teeTimeDialog.showModal();
+    }
+
+    document.getElementById("add-tee-time").addEventListener("click", () => openEditor());
+    document.querySelectorAll("[data-close]").forEach(button => {
+      button.addEventListener("click", () => document.getElementById(button.dataset.close).close());
+    });
+
+    teeTimeForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const capacity = Number(document.getElementById("capacity").value);
+      const bookedCount = Number(document.getElementById("booked-count").value);
+      if (bookedCount > capacity) {
+        showNotice("Booked count cannot exceed capacity.", true);
+        return;
+      }
+      const payload = {
+        date: document.getElementById("tee-date").value,
+        timeSlot: formatInputTime(document.getElementById("time-slot").value),
+        capacity,
+        bookedCount
+      };
+      const button = document.getElementById("save-tee-time");
+      button.disabled = true;
+      try {
+        if (editingId === null) {
+          await request(apiUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          showNotice("Tee time added.");
+        } else {
+          await request(`${apiUrl}/${editingId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          showNotice("Tee time updated.");
+        }
+        teeTimeDialog.close();
+        await loadTeeTimes();
+      } catch (error) {
+        showNotice(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("booking-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const bookingForm = event.currentTarget;
+      const form = new FormData(bookingForm);
+      const button = bookingForm.querySelector('button[type="submit"]');
+      button.disabled = true;
+      try {
+        const result = await request(`${apiUrl}/${bookingId}/book`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memberName: form.get("memberName"), email: form.get("email") })
+        });
+        bookingDialog.close();
+        bookingForm.reset();
+        showNotice(result);
+        await loadTeeTimes();
+      } catch (error) {
+        showNotice(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    rows.addEventListener("click", async event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const id = Number(button.dataset.id);
+      const time = teeTimes.find(item => item.id === id);
+      if (button.dataset.action === "edit") {
+        openEditor(time);
+        return;
+      }
+      if (button.dataset.action === "book") {
+        bookingId = id;
+        document.getElementById("booking-description").textContent = `${formatDate(time.date)} · ${time.timeSlot} · ${time.capacity - time.bookedCount} spots available`;
+        bookingDialog.showModal();
+        return;
+      }
+      if (button.dataset.action === "delete" && !window.confirm(`Delete tee time #${id} (${time.timeSlot})?`)) return;
+
+      button.disabled = true;
+      try {
+        if (button.dataset.action === "delete") {
+          await request(`${apiUrl}/${id}`, { method: "DELETE" });
+          showNotice(`Tee time #${id} deleted.`);
+        } else {
+          const result = await request(`${apiUrl}/${id}/cancel`, { method: "POST" });
+          showNotice(result);
+        }
+        await loadTeeTimes();
+      } catch (error) {
+        showNotice(error.message, true);
+        button.disabled = false;
+      }
+    });
+
+    document.querySelectorAll(".filter").forEach(button => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        document.querySelectorAll(".filter").forEach(filter => filter.classList.toggle("active", filter === button));
+        render();
+      });
+    });
+    document.getElementById("search").addEventListener("input", render);
+    loadTeeTimes();
+  </script>
+</body>
+</html>
