@@ -71,9 +71,6 @@ http://localhost:8080/api/reservations?from=2026-10-18&to=2026-10-24
 
 The browser page requests only its seven-day display window; the API without date parameters returns the full schedule.
 
-## Performance investigation
-
-See [docs/performance-investigation.md](docs/performance-investigation.md) for the measured workload, JFR profile findings, optimization, and before/after results.
 
 ## Troubleshooting
 
