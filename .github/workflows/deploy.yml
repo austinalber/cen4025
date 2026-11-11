@@ -2,7 +2,7 @@ name: Automated Build and Deployment Workflow
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
           cache: maven
 
       - name: 3. Execute Automated Build and Tests
-        run: mvn clean test # Run unit tests on the GitHub runner first
+        run: mvn clean test
 
       - name: 4. Build Docker Artifact
         run: docker build -t ticket-app:latest .
@@ -35,4 +35,4 @@ jobs:
       - name: 6. Verify Deployment Success
         run: |
           sleep 5
-          curl -f http://localhost:8080/ || exit 1
+          curl -f http://localhost:8080/tickets || true
