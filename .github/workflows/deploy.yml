@@ -28,11 +28,16 @@ jobs:
 
       - name: 5. Execute Automated Deployment
         run: |
-          docker stop ticket-app-container || true
-          docker rm ticket-app-container || true
+          docker rm -f ticket-app-container 2>/dev/null || true
           docker run -d --name ticket-app-container -p 8080:8080 ticket-app:latest
 
       - name: 6. Verify Deployment Success
         run: |
-          sleep 5
-          curl -f http://localhost:8080/version
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/version; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs ticket-app-container
+          exit 1
