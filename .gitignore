@@ -1,4 +1,7 @@
 target/
+.idea/
+.settings/
+.project
 .vagrant/
 __pycache__/
 *.py[cod]
