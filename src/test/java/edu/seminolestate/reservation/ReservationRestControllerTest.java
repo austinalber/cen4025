@@ -6,11 +6,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -22,6 +27,9 @@ class ReservationRestControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Test
@@ -29,6 +37,15 @@ class ReservationRestControllerTest {
         mockMvc.perform(get("/api/reservations"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void whenGetVersion_thenReturnsVersionPage() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/version", String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getHeaders().getContentType().isCompatibleWith(MediaType.TEXT_HTML));
+        assertTrue(response.getBody().contains("Application Version"));
     }
 
     @Test

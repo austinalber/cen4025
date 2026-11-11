@@ -35,4 +35,4 @@ jobs:
       - name: 6. Verify Deployment Success
         run: |
           sleep 5
-          curl -f http://localhost:8080/tickets || true
+          curl -f http://localhost:8080/version
