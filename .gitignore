@@ -1,1 +1,4 @@
 target/
+.vagrant/
+__pycache__/
+*.py[cod]

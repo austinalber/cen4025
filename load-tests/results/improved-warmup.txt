@@ -1,0 +1,37 @@
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate==1' rate=100.00%
+
+    http_req_failed
+    ✓ 'rate==0' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 66555   3325.153055/s
+    checks_succeeded...: 100.00% 66555 out of 66555
+    checks_failed......: 0.00%   0 out of 66555
+
+    ✓ GET date range returns HTTP 200
+
+    HTTP
+    http_req_duration..............: avg=258.92µs min=0s med=0s      max=6.36ms p(90)=620.9µs p(95)=667.42µs
+      { expected_response:true }...: avg=258.92µs min=0s med=0s      max=6.36ms p(90)=620.9µs p(95)=667.42µs
+    http_req_failed................: 0.00%  0 out of 66556
+    http_reqs......................: 66556  3325.203016/s
+
+    EXECUTION
+    iteration_duration.............: avg=296.48µs min=0s med=503.2µs max=6.36ms p(90)=630.7µs p(95)=683µs   
+    iterations.....................: 66555  3325.153055/s
+    vus............................: 1      min=1          max=1
+    vus_max........................: 1      min=1          max=1
+
+    NETWORK
+    data_received..................: 1.7 GB 85 MB/s
+    data_sent......................: 7.8 MB 389 kB/s
+
+
+

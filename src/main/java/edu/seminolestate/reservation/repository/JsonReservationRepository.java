@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Repository
 @ConditionalOnProperty(name = "reservation.storage", havingValue = "json", matchIfMissing = true)
@@ -22,7 +23,7 @@ public class JsonReservationRepository implements ReservationRepository {
     @org.springframework.beans.factory.annotation.Value("${reservation.storage.file:data/teetimes.json}")
     private File storageFile;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-    private List<TeeTime> teeTimes = new ArrayList<>();
+    private final CopyOnWriteArrayList<TeeTime> teeTimes = new CopyOnWriteArrayList<>();
 
     @PostConstruct
     public void init() {
@@ -32,7 +33,7 @@ public class JsonReservationRepository implements ReservationRepository {
     private synchronized void loadData() {
         try {
             if (storageFile.exists()) {
-                teeTimes = objectMapper.readValue(storageFile, new TypeReference<List<TeeTime>>() {});
+                teeTimes.addAll(objectMapper.readValue(storageFile, new TypeReference<List<TeeTime>>() {}));
             } else {
                 File parent = storageFile.getParentFile();
                 if (parent != null && !parent.exists()) {
@@ -73,7 +74,7 @@ public class JsonReservationRepository implements ReservationRepository {
     }
 
     @Override
-    public synchronized List<TeeTime> findByDateRange(LocalDate from, LocalDate to) {
+    public List<TeeTime> findByDateRange(LocalDate from, LocalDate to) {
         List<TeeTime> matchingTeeTimes = new ArrayList<>();
         for (TeeTime teeTime : teeTimes) {
             if (!teeTime.getDate().isBefore(from) && !teeTime.getDate().isAfter(to)) {

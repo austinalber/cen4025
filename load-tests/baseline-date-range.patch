@@ -1,0 +1,13 @@
+diff --git a/src/main/java/edu/seminolestate/reservation/service/ReservationService.java b/src/main/java/edu/seminolestate/reservation/service/ReservationService.java
+--- a/src/main/java/edu/seminolestate/reservation/service/ReservationService.java
++++ b/src/main/java/edu/seminolestate/reservation/service/ReservationService.java
+@@ -30,5 +30,8 @@
+     public List<TeeTime> getTeeTimes(LocalDate from, LocalDate to) {
+-        return repository.findByDateRange(from, to);
++        return repository.findAll().stream()
++                .filter(teeTime -> !teeTime.getDate().isBefore(from)
++                        && !teeTime.getDate().isAfter(to))
++                .toList();
+     }
+ 
+     public Optional<TeeTime> getTeeTime(long id) {

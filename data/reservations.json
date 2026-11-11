@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "date": "2026-11-02",
+    "timeSlot": "08:00 AM",
+    "capacity": 4,
+    "bookedCount": 1
+  },
+  {
+    "id": 2,
+    "date": "2026-11-02",
+    "timeSlot": "09:00 AM",
+    "capacity": 2,
+    "bookedCount": 2
+  },
+  {
+    "id": 3,
+    "date": "2026-11-03",
+    "timeSlot": "10:00 AM",
+    "capacity": 4,
+    "bookedCount": 0
+  }
+]
